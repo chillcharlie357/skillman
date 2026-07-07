@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { COMMON_AGENT_KEYS } from "../src/agents.js";
 import {
   createInstallPlan,
   inspectSkillLinks,
@@ -298,6 +299,45 @@ describe("createInstallPlan", () => {
       path.join(tmpDir, ".trae", "skills", "demo"),
     ]);
     expect(plan.map((item) => item.scope)).toEqual(["root", "root"]);
+  });
+
+  it("keeps the TUI common target set focused on default daily agents", async () => {
+    const source = await makeSkill("demo");
+
+    const plan = await createInstallPlan({
+      source,
+      cwd: tmpDir,
+      root: tmpDir,
+      agents: [...COMMON_AGENT_KEYS],
+    });
+
+    expect(COMMON_AGENT_KEYS).toEqual(["agents", "codex", "trae", "trae-cn"]);
+    expect(plan.map((item) => item.target.key)).toEqual(["agents", "trae"]);
+    expect(plan.map((item) => item.linkPath)).toEqual([
+      path.join(tmpDir, ".agents", "skills", "demo"),
+      path.join(tmpDir, ".trae", "skills", "demo"),
+    ]);
+  });
+
+  it("expands the TUI common target set to each official global directory", async () => {
+    const source = await makeSkill("demo");
+
+    const plan = await createInstallPlan({
+      source,
+      cwd: tmpDir,
+      agents: [...COMMON_AGENT_KEYS],
+      global: true,
+    });
+
+    const codexHome = process.env.CODEX_HOME?.trim() || path.join(os.homedir(), ".codex");
+
+    expect(plan.map((item) => item.target.key)).toEqual(["agents", "codex", "trae", "trae-cn"]);
+    expect(plan.map((item) => item.linkPath)).toEqual([
+      path.join(os.homedir(), ".agents", "skills", "demo"),
+      path.join(codexHome, "skills", "demo"),
+      path.join(os.homedir(), ".trae", "skills", "demo"),
+      path.join(os.homedir(), ".trae-cn", "skills", "demo"),
+    ]);
   });
 
   it("uses each agent global path with global scope", async () => {

@@ -96,7 +96,7 @@ Refresh an existing link that points somewhere else:
 skillman install ./my-skill --agent trae --force
 ```
 
-Run the `install` command without target flags to use the TUI:
+Run the `install` command without target flags to use the TUI. Choosing `Common agent directories` directly uses the common targets `agents`, `codex`, `trae`, and `trae-cn`; only `Choose from known agents` opens the full agent multiselect.
 
 ```bash
 skillman install ./my-skill

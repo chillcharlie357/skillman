@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { cancel, confirm, intro, isCancel, multiselect, note, outro, select, spinner, text } from "@clack/prompts";
 import { Command, Option } from "commander";
 import pc from "picocolors";
-import { AGENT_TARGETS, formatAgentChoices, getAgentTarget, type AgentKey } from "./agents.js";
+import { AGENT_TARGETS, COMMON_AGENT_KEYS, formatAgentChoices, getAgentTarget, type AgentKey } from "./agents.js";
 import {
   createInstallPlan,
   inspectSkillLinks,
@@ -225,7 +225,8 @@ async function runTui(source: string | undefined, options: CliOptions): Promise<
   const mode = await select({
     message: "Where should skillman install it?",
     options: [
-      { value: "built-in", label: "Known agent directories", hint: "~/.agents, ~/.trae, ~/.claude by default" },
+      { value: "common", label: "Common agent directories", hint: "~/.agents, ~/.codex, ~/.trae, ~/.trae-cn" },
+      { value: "choose", label: "Choose from known agents", hint: "Pick one or more supported agents" },
       { value: "custom", label: "Custom skills directory", hint: "Provide an exact target folder" },
       { value: "all", label: "All known agent directories", hint: "Fast path" },
     ],
@@ -250,7 +251,11 @@ async function runTui(source: string | undefined, options: CliOptions): Promise<
     next.all = true;
   }
 
-  if (mode === "built-in") {
+  if (mode === "common") {
+    next.agents = [...COMMON_AGENT_KEYS];
+  }
+
+  if (mode === "choose") {
     const selectableTargets = options.global ? AGENT_TARGETS.filter((target) => target.globalSkillDir) : AGENT_TARGETS;
 
     const selectedAgents = await multiselect({

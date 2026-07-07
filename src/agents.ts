@@ -14,6 +14,8 @@ export type AgentTarget = {
   globalSkillDir?: string;
 };
 
+export const COMMON_AGENT_KEYS = ["agents", "codex", "trae", "trae-cn"] as const satisfies readonly AgentKey[];
+
 const home = os.homedir();
 const configHome = process.env.XDG_CONFIG_HOME?.trim() || path.join(home, ".config");
 const codexHome = process.env.CODEX_HOME?.trim() || path.join(home, ".codex");

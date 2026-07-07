@@ -96,7 +96,7 @@ skillman install ./my-skill --all --dry-run
 skillman install ./my-skill --agent trae --force
 ```
 
-使用 `install` 子命令且不传目标参数时进入 TUI：
+使用 `install` 子命令且不传目标参数时进入 TUI。选择 `Common agent directories` 会直接使用常用目标 `agents`、`codex`、`trae`、`trae-cn`；只有选择 `Choose from known agents` 时才会进入完整 agent 多选列表。
 
 ```bash
 skillman install ./my-skill
