@@ -1,0 +1,57 @@
+{
+  "name": "@heleyang/skillman",
+  "version": "0.1.2",
+  "description": "Install local skill directories into agent skill folders with symlinks.",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chillcharlie357/skillman.git"
+  },
+  "bin": {
+    "skillman": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README-EN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-assets.mjs",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:run": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check": "pnpm run typecheck && pnpm run test:run"
+  },
+  "keywords": [
+    "agent",
+    "skills",
+    "agent-skills",
+    "cli",
+    "tui",
+    "symlink",
+    "claude-code",
+    "codex",
+    "cursor",
+    "trae"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@clack/prompts": "^0.10.1",
+    "commander": "^12.1.0",
+    "picocolors": "^1.1.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.17.1"
+}

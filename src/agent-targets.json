@@ -1,0 +1,515 @@
+[
+  {
+    "key": "agents",
+    "aliases": ["agent", "universal-agents"],
+    "label": "Universal (.agents)",
+    "description": "Generic .agents/skills directory",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.agents/skills"
+  },
+  {
+    "key": "aider-desk",
+    "label": "AiderDesk",
+    "description": "AiderDesk skills",
+    "relativeSkillDir": ".aider-desk/skills",
+    "globalSkillDir": "${home}/.aider-desk/skills"
+  },
+  {
+    "key": "amp",
+    "label": "Amp",
+    "description": "Amp skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${configHome}/agents/skills"
+  },
+  {
+    "key": "antigravity",
+    "label": "Antigravity",
+    "description": "Antigravity skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.gemini/antigravity/skills"
+  },
+  {
+    "key": "antigravity-cli",
+    "label": "Antigravity CLI",
+    "description": "Antigravity CLI skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.gemini/antigravity-cli/skills"
+  },
+  {
+    "key": "astrbot",
+    "label": "AstrBot",
+    "description": "AstrBot skills",
+    "relativeSkillDir": "data/skills",
+    "globalSkillDir": "${home}/.astrbot/data/skills"
+  },
+  {
+    "key": "autohand-code",
+    "label": "Autohand Code CLI",
+    "description": "Autohand Code CLI skills",
+    "relativeSkillDir": ".autohand/skills",
+    "globalSkillDir": "${autohandHome}/skills"
+  },
+  {
+    "key": "augment",
+    "label": "Augment",
+    "description": "Augment skills",
+    "relativeSkillDir": ".augment/skills",
+    "globalSkillDir": "${home}/.augment/skills"
+  },
+  {
+    "key": "bob",
+    "label": "IBM Bob",
+    "description": "IBM Bob skills",
+    "relativeSkillDir": ".bob/skills",
+    "globalSkillDir": "${home}/.bob/skills"
+  },
+  {
+    "key": "claude-code",
+    "aliases": ["claude", "cowork"],
+    "label": "Claude Code",
+    "description": "Claude Code skills",
+    "relativeSkillDir": ".claude/skills",
+    "globalSkillDir": "${claudeHome}/skills"
+  },
+  {
+    "key": "openclaw",
+    "label": "OpenClaw",
+    "description": "OpenClaw skills",
+    "relativeSkillDir": "skills",
+    "globalSkillDir": "${home}/.openclaw/skills"
+  },
+  {
+    "key": "cline",
+    "label": "Cline",
+    "description": "Cline skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.agents/skills"
+  },
+  {
+    "key": "codearts-agent",
+    "label": "CodeArts Agent",
+    "description": "CodeArts Agent skills",
+    "relativeSkillDir": ".codeartsdoer/skills",
+    "globalSkillDir": "${home}/.codeartsdoer/skills"
+  },
+  {
+    "key": "codebuddy",
+    "label": "CodeBuddy",
+    "description": "CodeBuddy skills",
+    "relativeSkillDir": ".codebuddy/skills",
+    "globalSkillDir": "${home}/.codebuddy/skills"
+  },
+  {
+    "key": "codemaker",
+    "label": "Codemaker",
+    "description": "Codemaker skills",
+    "relativeSkillDir": ".codemaker/skills",
+    "globalSkillDir": "${home}/.codemaker/skills"
+  },
+  {
+    "key": "codestudio",
+    "label": "Code Studio",
+    "description": "Code Studio skills",
+    "relativeSkillDir": ".codestudio/skills",
+    "globalSkillDir": "${home}/.codestudio/skills"
+  },
+  {
+    "key": "codex",
+    "label": "Codex",
+    "description": "Codex skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${codexHome}/skills"
+  },
+  {
+    "key": "command-code",
+    "label": "Command Code",
+    "description": "Command Code skills",
+    "relativeSkillDir": ".commandcode/skills",
+    "globalSkillDir": "${home}/.commandcode/skills"
+  },
+  {
+    "key": "continue",
+    "label": "Continue",
+    "description": "Continue skills",
+    "relativeSkillDir": ".continue/skills",
+    "globalSkillDir": "${home}/.continue/skills"
+  },
+  {
+    "key": "cortex",
+    "label": "Cortex Code",
+    "description": "Cortex Code skills",
+    "relativeSkillDir": ".cortex/skills",
+    "globalSkillDir": "${home}/.snowflake/cortex/skills"
+  },
+  {
+    "key": "crush",
+    "label": "Crush",
+    "description": "Crush skills",
+    "relativeSkillDir": ".crush/skills",
+    "globalSkillDir": "${configHome}/crush/skills"
+  },
+  {
+    "key": "cursor",
+    "aliases": ["cursor-cli"],
+    "label": "Cursor",
+    "description": "Cursor skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.cursor/skills"
+  },
+  {
+    "key": "deepagents",
+    "label": "Deep Agents",
+    "description": "Deep Agents skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.deepagents/agent/skills"
+  },
+  {
+    "key": "devin",
+    "label": "Devin for Terminal",
+    "description": "Devin skills",
+    "relativeSkillDir": ".devin/skills",
+    "globalSkillDir": "${configHome}/devin/skills"
+  },
+  {
+    "key": "dexto",
+    "label": "Dexto",
+    "description": "Dexto skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.agents/skills"
+  },
+  {
+    "key": "droid",
+    "label": "Droid",
+    "description": "Droid skills",
+    "relativeSkillDir": ".factory/skills",
+    "globalSkillDir": "${home}/.factory/skills"
+  },
+  {
+    "key": "eve",
+    "label": "Eve",
+    "description": "Eve project skills",
+    "relativeSkillDir": "agent/skills"
+  },
+  {
+    "key": "firebender",
+    "label": "Firebender",
+    "description": "Firebender skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.firebender/skills"
+  },
+  {
+    "key": "forgecode",
+    "label": "ForgeCode",
+    "description": "ForgeCode skills",
+    "relativeSkillDir": ".forge/skills",
+    "globalSkillDir": "${home}/.forge/skills"
+  },
+  {
+    "key": "gemini-cli",
+    "aliases": ["gemini"],
+    "label": "Gemini CLI",
+    "description": "Gemini CLI skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.gemini/skills"
+  },
+  {
+    "key": "github-copilot",
+    "label": "GitHub Copilot",
+    "description": "GitHub Copilot skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.copilot/skills"
+  },
+  {
+    "key": "goose",
+    "label": "Goose",
+    "description": "Goose skills",
+    "relativeSkillDir": ".goose/skills",
+    "globalSkillDir": "${configHome}/goose/skills"
+  },
+  {
+    "key": "hermes-agent",
+    "label": "Hermes Agent",
+    "description": "Hermes Agent skills",
+    "relativeSkillDir": ".hermes/skills",
+    "globalSkillDir": "${hermesHome}/skills"
+  },
+  {
+    "key": "inference-sh",
+    "label": "inference.sh",
+    "description": "inference.sh skills",
+    "relativeSkillDir": ".inferencesh/skills",
+    "globalSkillDir": "${home}/.inferencesh/skills"
+  },
+  {
+    "key": "jazz",
+    "label": "Jazz",
+    "description": "Jazz skills",
+    "relativeSkillDir": ".jazz/skills",
+    "globalSkillDir": "${home}/.jazz/skills"
+  },
+  {
+    "key": "junie",
+    "label": "Junie",
+    "description": "Junie skills",
+    "relativeSkillDir": ".junie/skills",
+    "globalSkillDir": "${home}/.junie/skills"
+  },
+  {
+    "key": "iflow-cli",
+    "label": "iFlow CLI",
+    "description": "iFlow CLI skills",
+    "relativeSkillDir": ".iflow/skills",
+    "globalSkillDir": "${home}/.iflow/skills"
+  },
+  {
+    "key": "kilo",
+    "label": "Kilo Code",
+    "description": "Kilo Code skills",
+    "relativeSkillDir": ".kilocode/skills",
+    "globalSkillDir": "${home}/.kilocode/skills"
+  },
+  {
+    "key": "kimi-code-cli",
+    "label": "Kimi Code CLI",
+    "description": "Kimi Code CLI skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.agents/skills"
+  },
+  {
+    "key": "kiro-cli",
+    "label": "Kiro CLI",
+    "description": "Kiro CLI skills",
+    "relativeSkillDir": ".kiro/skills",
+    "globalSkillDir": "${home}/.kiro/skills"
+  },
+  {
+    "key": "kode",
+    "label": "Kode",
+    "description": "Kode skills",
+    "relativeSkillDir": ".kode/skills",
+    "globalSkillDir": "${home}/.kode/skills"
+  },
+  {
+    "key": "lingma",
+    "label": "Lingma",
+    "description": "Lingma skills",
+    "relativeSkillDir": ".lingma/skills",
+    "globalSkillDir": "${home}/.lingma/skills"
+  },
+  {
+    "key": "loaf",
+    "label": "Loaf",
+    "description": "Loaf skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.agents/skills"
+  },
+  {
+    "key": "mcpjam",
+    "label": "MCPJam",
+    "description": "MCPJam skills",
+    "relativeSkillDir": ".mcpjam/skills",
+    "globalSkillDir": "${home}/.mcpjam/skills"
+  },
+  {
+    "key": "mistral-vibe",
+    "label": "Mistral Vibe",
+    "description": "Mistral Vibe skills",
+    "relativeSkillDir": ".vibe/skills",
+    "globalSkillDir": "${vibeHome}/skills"
+  },
+  {
+    "key": "moxby",
+    "label": "Moxby",
+    "description": "Moxby skills",
+    "relativeSkillDir": ".moxby/skills",
+    "globalSkillDir": "${home}/.moxby/skills"
+  },
+  {
+    "key": "mux",
+    "label": "Mux",
+    "description": "Mux skills",
+    "relativeSkillDir": ".mux/skills",
+    "globalSkillDir": "${home}/.mux/skills"
+  },
+  {
+    "key": "opencode",
+    "label": "OpenCode",
+    "description": "OpenCode skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${configHome}/opencode/skills"
+  },
+  {
+    "key": "openhands",
+    "label": "OpenHands",
+    "description": "OpenHands skills",
+    "relativeSkillDir": ".openhands/skills",
+    "globalSkillDir": "${home}/.openhands/skills"
+  },
+  {
+    "key": "ona",
+    "label": "Ona",
+    "description": "Ona skills",
+    "relativeSkillDir": ".ona/skills",
+    "globalSkillDir": "${home}/.ona/skills"
+  },
+  {
+    "key": "pi",
+    "label": "Pi",
+    "description": "Pi skills",
+    "relativeSkillDir": ".pi/skills",
+    "globalSkillDir": "${home}/.pi/agent/skills"
+  },
+  {
+    "key": "qoder",
+    "label": "Qoder",
+    "description": "Qoder skills",
+    "relativeSkillDir": ".qoder/skills",
+    "globalSkillDir": "${home}/.qoder/skills"
+  },
+  {
+    "key": "qoder-cn",
+    "label": "Qoder CN",
+    "description": "Qoder CN skills",
+    "relativeSkillDir": ".qoder/skills",
+    "globalSkillDir": "${home}/.qoder-cn/skills"
+  },
+  {
+    "key": "qwen-code",
+    "label": "Qwen Code",
+    "description": "Qwen Code skills",
+    "relativeSkillDir": ".qwen/skills",
+    "globalSkillDir": "${home}/.qwen/skills"
+  },
+  {
+    "key": "replit",
+    "label": "Replit",
+    "description": "Replit skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${configHome}/agents/skills"
+  },
+  {
+    "key": "reasonix",
+    "label": "Reasonix",
+    "description": "Reasonix skills",
+    "relativeSkillDir": ".reasonix/skills",
+    "globalSkillDir": "${home}/.reasonix/skills"
+  },
+  {
+    "key": "rovodev",
+    "label": "Rovo Dev",
+    "description": "Rovo Dev skills",
+    "relativeSkillDir": ".rovodev/skills",
+    "globalSkillDir": "${home}/.rovodev/skills"
+  },
+  {
+    "key": "roo",
+    "label": "Roo Code",
+    "description": "Roo Code skills",
+    "relativeSkillDir": ".roo/skills",
+    "globalSkillDir": "${home}/.roo/skills"
+  },
+  {
+    "key": "tabnine-cli",
+    "label": "Tabnine CLI",
+    "description": "Tabnine CLI skills",
+    "relativeSkillDir": ".tabnine/agent/skills",
+    "globalSkillDir": "${home}/.tabnine/agent/skills"
+  },
+  {
+    "key": "terramind",
+    "label": "Terramind",
+    "description": "Terramind skills",
+    "relativeSkillDir": ".terramind/skills",
+    "globalSkillDir": "${home}/.terramind/skills"
+  },
+  {
+    "key": "tinycloud",
+    "label": "Tinycloud",
+    "description": "Tinycloud skills",
+    "relativeSkillDir": ".tinycloud/skills",
+    "globalSkillDir": "${home}/.tinycloud/skills"
+  },
+  {
+    "key": "trae",
+    "label": "Trae",
+    "description": "TRAE CLI skills",
+    "relativeSkillDir": ".trae/skills",
+    "globalSkillDir": "${home}/.trae/skills"
+  },
+  {
+    "key": "trae-cn",
+    "label": "Trae CN",
+    "description": "Trae CN skills",
+    "relativeSkillDir": ".trae/skills",
+    "globalSkillDir": "${home}/.trae-cn/skills"
+  },
+  {
+    "key": "warp",
+    "label": "Warp",
+    "description": "Warp skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.agents/skills"
+  },
+  {
+    "key": "windsurf",
+    "label": "Windsurf",
+    "description": "Windsurf skills",
+    "relativeSkillDir": ".windsurf/skills",
+    "globalSkillDir": "${home}/.codeium/windsurf/skills"
+  },
+  {
+    "key": "zed",
+    "label": "Zed",
+    "description": "Zed skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${home}/.agents/skills"
+  },
+  {
+    "key": "zencoder",
+    "label": "Zencoder",
+    "description": "Zencoder skills",
+    "relativeSkillDir": ".zencoder/skills",
+    "globalSkillDir": "${home}/.zencoder/skills"
+  },
+  {
+    "key": "zenflow",
+    "label": "Zenflow",
+    "description": "Zenflow skills",
+    "relativeSkillDir": ".zencoder/skills",
+    "globalSkillDir": "${home}/.zencoder/skills"
+  },
+  {
+    "key": "neovate",
+    "label": "Neovate",
+    "description": "Neovate skills",
+    "relativeSkillDir": ".neovate/skills",
+    "globalSkillDir": "${home}/.neovate/skills"
+  },
+  {
+    "key": "pochi",
+    "label": "Pochi",
+    "description": "Pochi skills",
+    "relativeSkillDir": ".pochi/skills",
+    "globalSkillDir": "${home}/.pochi/skills"
+  },
+  {
+    "key": "promptscript",
+    "label": "PromptScript",
+    "description": "PromptScript project skills",
+    "relativeSkillDir": ".agents/skills"
+  },
+  {
+    "key": "adal",
+    "label": "AdaL",
+    "description": "AdaL skills",
+    "relativeSkillDir": ".adal/skills",
+    "globalSkillDir": "${home}/.adal/skills"
+  },
+  {
+    "key": "universal",
+    "label": "Universal",
+    "description": "Universal agent skills",
+    "relativeSkillDir": ".agents/skills",
+    "globalSkillDir": "${configHome}/agents/skills"
+  }
+]
