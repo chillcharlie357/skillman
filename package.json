@@ -1,5 +1,5 @@
 {
-  "name": "@chillcharlie/skillman",
+  "name": "@heleyang/skillman",
   "version": "0.1.2",
   "description": "Install local skill directories into agent skill folders with symlinks.",
   "type": "module",
@@ -8,7 +8,7 @@
     "url": "git+https://github.com/chillcharlie357/skillman.git"
   },
   "bin": {
-    "skillman": "./dist/cli.js"
+    "skillman": "dist/cli.js"
   },
   "files": [
     "dist",
