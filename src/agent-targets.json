@@ -440,7 +440,7 @@
     "key": "trae-cn",
     "label": "Trae CN",
     "description": "Trae CN skills",
-    "relativeSkillDir": ".trae/skills",
+    "relativeSkillDir": ".trae-cn/skills",
     "globalSkillDir": "${home}/.trae-cn/skills"
   },
   {

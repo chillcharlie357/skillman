@@ -137,7 +137,8 @@ skillman remove ./my-skill --agent trae
 | Gemini CLI | `gemini-cli` (`gemini`) | `~/.agents/skills` | `~/.gemini/skills` |
 | OpenCode | `opencode` | `~/.agents/skills` | `~/.config/opencode/skills` |
 | Roo Code | `roo` | `~/.roo/skills` | `~/.roo/skills` |
-| Trae | `trae`, `trae-cn` | `~/.trae/skills` | `~/.trae/skills`, `~/.trae-cn/skills` |
+| Trae | `trae` | `~/.trae/skills` | `~/.trae/skills` |
+| Trae CN | `trae-cn` | `~/.trae-cn/skills` | `~/.trae-cn/skills` |
 | Windsurf | `windsurf` | `~/.windsurf/skills` | `~/.codeium/windsurf/skills` |
 
 还支持 `npx skills` supported agents 表中的更多 key，例如 `aider-desk`、`amp`、`antigravity`、`cline`、`crush`、`goose`、`kiro-cli`、`qwen-code`、`tabnine-cli`、`zed`、`zencoder` 等。使用 `skillman --help` 可查看当前完整 key 列表。

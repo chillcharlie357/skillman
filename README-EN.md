@@ -137,7 +137,8 @@ The root command `skillman` is equivalent to `skillman --help`.
 | Gemini CLI | `gemini-cli` (`gemini`) | `~/.agents/skills` | `~/.gemini/skills` |
 | OpenCode | `opencode` | `~/.agents/skills` | `~/.config/opencode/skills` |
 | Roo Code | `roo` | `~/.roo/skills` | `~/.roo/skills` |
-| Trae | `trae`, `trae-cn` | `~/.trae/skills` | `~/.trae/skills`, `~/.trae-cn/skills` |
+| Trae | `trae` | `~/.trae/skills` | `~/.trae/skills` |
+| Trae CN | `trae-cn` | `~/.trae-cn/skills` | `~/.trae-cn/skills` |
 | Windsurf | `windsurf` | `~/.windsurf/skills` | `~/.codeium/windsurf/skills` |
 
 It also supports more keys from the `npx skills` supported agents table, such as `aider-desk`, `amp`, `antigravity`, `cline`, `crush`, `goose`, `kiro-cli`, `qwen-code`, `tabnine-cli`, `zed`, and `zencoder`. Run `skillman --help` to see the current full key list.

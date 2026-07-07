@@ -312,11 +312,25 @@ describe("createInstallPlan", () => {
     });
 
     expect(COMMON_AGENT_KEYS).toEqual(["agents", "codex", "trae", "trae-cn"]);
-    expect(plan.map((item) => item.target.key)).toEqual(["agents", "trae"]);
+    expect(plan.map((item) => item.target.key)).toEqual(["agents", "trae", "trae-cn"]);
     expect(plan.map((item) => item.linkPath)).toEqual([
       path.join(tmpDir, ".agents", "skills", "demo"),
       path.join(tmpDir, ".trae", "skills", "demo"),
+      path.join(tmpDir, ".trae-cn", "skills", "demo"),
     ]);
+  });
+
+  it("uses .trae-cn for the Trae CN project target", async () => {
+    const source = await makeSkill("demo");
+
+    const plan = await createInstallPlan({
+      source,
+      cwd: tmpDir,
+      root: ".",
+      agents: ["trae-cn"],
+    });
+
+    expect(plan.map((item) => item.linkPath)).toEqual([path.join(tmpDir, ".trae-cn", "skills", "demo")]);
   });
 
   it("expands the TUI common target set to each official global directory", async () => {
