@@ -15,6 +15,7 @@ English: [README-EN.md](./README-EN.md)
 - 使用 `--root .` 安装到当前项目；使用 `-g, --global` 安装到各 agent 的官方全局 skills 目录。
 - 支持自定义目标 skills 目录。
 - 未指定目标参数时提供一个轻量交互式 TUI。
+- TUI 会把上次在 `Choose from known agents` 中选择的 agent 记到 `~/.skillman/config.json`，并追加到 `Common agent directories`。
 - 支持从包含多个 skill 的父目录递归安装。
 - 提供 `status` 子命令查询链接是否 current、missing、stale 或 conflict。
 - 提供 `remove` 子命令移除已安装的 skill 软链接。
@@ -96,7 +97,7 @@ skillman install ./my-skill --all --dry-run
 skillman install ./my-skill --agent trae --force
 ```
 
-使用 `install` 子命令且不传目标参数时进入 TUI。选择 `Common agent directories` 会直接使用常用目标 `agents`、`codex`、`trae`、`trae-cn`；只有选择 `Choose from known agents` 时才会进入完整 agent 多选列表。
+使用 `install` 子命令且不传目标参数时进入 TUI。选择 `Common agent directories` 会直接使用默认目标 `agents`、`codex`、`trae`、`trae-cn`，并追加上次在 `Choose from known agents` 中选择过的目标。只有选择 `Choose from known agents` 时才会进入完整 agent 多选列表；这次选择会保存到 `~/.skillman/config.json`。
 
 ```bash
 skillman install ./my-skill

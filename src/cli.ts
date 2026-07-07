@@ -16,6 +16,7 @@ import {
   type LinkStatusResult,
   type RemoveResult,
 } from "./installer.js";
+import { getCommonAgentKeys, writeLastChosenAgentKeys } from "./preferences.js";
 
 type CliOptions = {
   agent?: string[];
@@ -202,6 +203,7 @@ async function resolveOptions(source: string | undefined, options: CliOptions): 
 
 async function runTui(source: string | undefined, options: CliOptions): Promise<InstallOptions> {
   intro(pc.bold("skillman"));
+  const commonAgentKeys = await getCommonAgentKeys({ global: options.global });
 
   const selectedSource =
     source ??
@@ -225,7 +227,7 @@ async function runTui(source: string | undefined, options: CliOptions): Promise<
   const mode = await select({
     message: "Where should skillman install it?",
     options: [
-      { value: "common", label: "Common agent directories", hint: "~/.agents, ~/.codex, ~/.trae, ~/.trae-cn" },
+      { value: "common", label: "Common agent directories", hint: formatCommonAgentHint(commonAgentKeys) },
       { value: "choose", label: "Choose from known agents", hint: "Pick one or more supported agents" },
       { value: "custom", label: "Custom skills directory", hint: "Provide an exact target folder" },
       { value: "all", label: "All known agent directories", hint: "Fast path" },
@@ -252,7 +254,7 @@ async function runTui(source: string | undefined, options: CliOptions): Promise<
   }
 
   if (mode === "common") {
-    next.agents = [...COMMON_AGENT_KEYS];
+    next.agents = commonAgentKeys;
   }
 
   if (mode === "choose") {
@@ -274,6 +276,7 @@ async function runTui(source: string | undefined, options: CliOptions): Promise<
     }
 
     next.agents = selectedAgents;
+    await writeLastChosenAgentKeys(selectedAgents);
   }
 
   if (mode === "custom") {
@@ -312,6 +315,12 @@ async function runTui(source: string | undefined, options: CliOptions): Promise<
   }
 
   return next;
+}
+
+function formatCommonAgentHint(agentKeys: readonly AgentKey[]): string {
+  const extraCount = Math.max(0, agentKeys.length - COMMON_AGENT_KEYS.length);
+  const suffix = extraCount > 0 ? ` + ${extraCount} saved` : "";
+  return `${COMMON_AGENT_KEYS.join(", ")}${suffix}`;
 }
 
 function normalizeCliOptions(source: string, options: CliOptions): InstallOptions {
