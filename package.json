@@ -1,5 +1,5 @@
 {
-  "name": "@heleyang/skillman",
+  "name": "@chillcharlie/skillman",
   "version": "0.1.2",
   "description": "Install local skill directories into agent skill folders with symlinks.",
   "type": "module",

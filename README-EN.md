@@ -20,7 +20,7 @@ It is meant for the Vercel Skills-style workflow where one source skill can be m
 ## Install
 
 ```bash
-npm install -g @heleyang/skillman
+npm install -g @chillcharlie/skillman
 ```
 
 Install locally from this repo:

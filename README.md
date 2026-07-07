@@ -20,7 +20,7 @@ English: [README-EN.md](./README-EN.md)
 ## 安装
 
 ```bash
-npm install -g @heleyang/skillman
+npm install -g @chillcharlie/skillman
 ```
 
 从当前仓库本地安装：
