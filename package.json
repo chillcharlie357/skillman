@@ -1,6 +1,6 @@
 {
   "name": "@heleyang/skillman",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Install local skill directories into agent skill folders with symlinks.",
   "type": "module",
   "repository": {

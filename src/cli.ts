@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { cancel, confirm, intro, isCancel, multiselect, note, outro, select, spinner, text } from "@clack/prompts";
 import { Command, Option } from "commander";
 import pc from "picocolors";
@@ -30,6 +33,7 @@ type CliOptions = {
 const program = new Command()
   .name("skillman")
   .description("Install local skill directories into agent skill folders with symlinks.")
+  .version(getPackageVersion(), "-v, --version", "display version number")
   .showHelpAfterError()
   .action(() => {
     program.help();
@@ -149,6 +153,23 @@ function agentOption(): Option {
 
 function targetOption(): Option {
   return new Option("-t, --target <dir>", "custom skill directory, for example ~/.config/my-agent/skills").argParser(collect).default([]);
+}
+
+function getPackageVersion(): string {
+  const startDirectory = path.dirname(fileURLToPath(import.meta.url));
+
+  for (const candidate of [path.join(startDirectory, "..", "package.json"), path.join(startDirectory, "..", "..", "package.json")]) {
+    if (!fs.existsSync(candidate)) {
+      continue;
+    }
+
+    const packageJson = JSON.parse(fs.readFileSync(candidate, "utf8")) as { version?: unknown };
+    if (typeof packageJson.version === "string") {
+      return packageJson.version;
+    }
+  }
+
+  return "0.0.0";
 }
 
 async function handleCommand(action: () => Promise<void>): Promise<void> {
