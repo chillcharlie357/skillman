@@ -2,7 +2,14 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createInstallPlan, installSkills, normalizeOptions, resolveTargets } from "../src/installer.js";
+import {
+  createInstallPlan,
+  inspectSkillLinks,
+  installSkills,
+  normalizeOptions,
+  removeSkillLinks,
+  resolveTargets,
+} from "../src/installer.js";
 
 let tmpDir: string;
 
@@ -102,6 +109,141 @@ describe("installSkills", () => {
     expect(results.map((result) => result.skill.name)).toEqual(["alpha", "beta"]);
     await expect(fs.lstat(path.join(tmpDir, ".trae", "skills", "alpha"))).resolves.toBeDefined();
     await expect(fs.lstat(path.join(tmpDir, ".trae", "skills", "beta"))).resolves.toBeDefined();
+  });
+});
+
+describe("inspectSkillLinks", () => {
+  it("reports missing links before install and current links after install", async () => {
+    const source = await makeSkill("demo");
+    const options = {
+      source,
+      cwd: tmpDir,
+      root: tmpDir,
+      agents: ["trae"],
+    };
+
+    const before = await inspectSkillLinks(options);
+    await installSkills(options);
+    const after = await inspectSkillLinks(options);
+
+    expect(before[0]?.status).toBe("missing");
+    expect(after[0]?.status).toBe("current");
+  });
+
+  it("reports stale links that point to another source", async () => {
+    const source = await makeSkill("demo");
+    const oldSource = await makeSkill("old-demo");
+    const targetDir = path.join(tmpDir, ".agents", "skills");
+    const linkPath = path.join(targetDir, "demo");
+
+    await fs.mkdir(targetDir, { recursive: true });
+    await fs.symlink(oldSource, linkPath, "dir");
+
+    const results = await inspectSkillLinks({
+      source,
+      cwd: tmpDir,
+      root: tmpDir,
+      agents: ["agents"],
+    });
+
+    expect(results[0]?.status).toBe("stale");
+    expect(results[0]?.existingTarget).toBe(oldSource);
+  });
+
+  it("reports conflicts for non-symlink entries", async () => {
+    const source = await makeSkill("demo");
+    const targetDir = path.join(tmpDir, ".agents", "skills");
+    const linkPath = path.join(targetDir, "demo");
+
+    await fs.mkdir(targetDir, { recursive: true });
+    await fs.mkdir(linkPath);
+
+    const results = await inspectSkillLinks({
+      source,
+      cwd: tmpDir,
+      root: tmpDir,
+      agents: ["agents"],
+    });
+
+    expect(results[0]?.status).toBe("conflict");
+  });
+});
+
+describe("removeSkillLinks", () => {
+  it("removes a symlink that points to the expected source", async () => {
+    const source = await makeSkill("demo");
+    const options = {
+      source,
+      cwd: tmpDir,
+      root: tmpDir,
+      agents: ["trae"],
+    };
+
+    await installSkills(options);
+    const results = await removeSkillLinks(options);
+
+    expect(results[0]?.action).toBe("removed");
+    await expect(fs.lstat(path.join(tmpDir, ".trae", "skills", "demo"))).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
+  it("skips stale symlinks without force", async () => {
+    const source = await makeSkill("demo");
+    const oldSource = await makeSkill("old-demo");
+    const targetDir = path.join(tmpDir, ".agents", "skills");
+    const linkPath = path.join(targetDir, "demo");
+
+    await fs.mkdir(targetDir, { recursive: true });
+    await fs.symlink(oldSource, linkPath, "dir");
+
+    const results = await removeSkillLinks({
+      source,
+      cwd: tmpDir,
+      root: tmpDir,
+      agents: ["agents"],
+    });
+
+    expect(results[0]?.action).toBe("skipped");
+    expect(await fs.readlink(linkPath)).toBe(oldSource);
+  });
+
+  it("removes stale symlinks with force", async () => {
+    const source = await makeSkill("demo");
+    const oldSource = await makeSkill("old-demo");
+    const targetDir = path.join(tmpDir, ".agents", "skills");
+    const linkPath = path.join(targetDir, "demo");
+
+    await fs.mkdir(targetDir, { recursive: true });
+    await fs.symlink(oldSource, linkPath, "dir");
+
+    const results = await removeSkillLinks({
+      source,
+      cwd: tmpDir,
+      root: tmpDir,
+      agents: ["agents"],
+      force: true,
+    });
+
+    expect(results[0]?.action).toBe("removed");
+    await expect(fs.lstat(linkPath)).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
+  it("does not remove non-symlink entries", async () => {
+    const source = await makeSkill("demo");
+    const targetDir = path.join(tmpDir, ".agents", "skills");
+    const linkPath = path.join(targetDir, "demo");
+
+    await fs.mkdir(linkPath, { recursive: true });
+
+    const results = await removeSkillLinks({
+      source,
+      cwd: tmpDir,
+      root: tmpDir,
+      agents: ["agents"],
+      force: true,
+    });
+
+    expect(results[0]?.action).toBe("skipped");
+    await expect(fs.lstat(linkPath)).resolves.toBeDefined();
   });
 });
 

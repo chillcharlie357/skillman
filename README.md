@@ -16,6 +16,8 @@ English: [README-EN.md](./README-EN.md)
 - 支持自定义目标 skills 目录。
 - 未指定目标参数时提供一个轻量交互式 TUI。
 - 支持从包含多个 skill 的父目录递归安装。
+- 提供 `status` 子命令查询链接是否 current、missing、stale 或 conflict。
+- 提供 `remove` 子命令移除已安装的 skill 软链接。
 
 ## 安装
 
@@ -36,31 +38,31 @@ pnpm link --global
 把单个 skill 安装到 `~/.trae/skills`：
 
 ```bash
-skillman ./my-skill --agent trae
+skillman install ./my-skill --agent trae
 ```
 
 安装到所有已知 agent 的用户目录 skills：
 
 ```bash
-skillman ./my-skill --all
+skillman install ./my-skill --all
 ```
 
 安装到各 agent 的官方全局 skills 目录：
 
 ```bash
-skillman ./my-skill --agent codex --agent claude-code --global
+skillman install ./my-skill --agent codex --agent claude-code --global
 ```
 
 使用 `npx skills` 风格的通配 agent：
 
 ```bash
-skillman ./my-skill --agent '*'
+skillman install ./my-skill --agent '*'
 ```
 
 安装到当前项目目录：
 
 ```bash
-skillman ./my-skill --agent agents --agent trae --root .
+skillman install ./my-skill --agent agents --agent trae --root .
 ```
 
 这会创建类似下面的链接：
@@ -73,32 +75,54 @@ skillman ./my-skill --agent agents --agent trae --root .
 使用自定义的精确 skills 目录：
 
 ```bash
-skillman ./my-skill --target ~/.config/my-agent/skills
+skillman install ./my-skill --target ~/.config/my-agent/skills
 ```
 
 安装每个包含 `SKILL.md` 的子目录：
 
 ```bash
-skillman ./skills --recursive --all
+skillman install ./skills --recursive --all
 ```
 
 预览将要执行的变更：
 
 ```bash
-skillman ./my-skill --all --dry-run
+skillman install ./my-skill --all --dry-run
 ```
 
 刷新已经存在但指向其他位置的链接：
 
 ```bash
-skillman ./my-skill --agent trae --force
+skillman install ./my-skill --agent trae --force
 ```
 
 不传目标参数时使用 TUI：
 
 ```bash
-skillman ./my-skill
+skillman install ./my-skill
 ```
+
+查询当前链接状态：
+
+```bash
+skillman status ./my-skill --agent trae
+```
+
+输出 JSON 供脚本使用：
+
+```bash
+skillman status ./my-skill --agent '*' --json
+```
+
+移除已安装的 skill 软链接：
+
+```bash
+skillman remove ./my-skill --agent trae
+```
+
+如果现有链接指向其他位置，使用 `--force` 才会移除；非软链接文件或目录不会被删除。
+
+兼容旧入口：`skillman ./my-skill --agent trae` 仍等价于 `skillman install ./my-skill --agent trae`。
 
 ## 内置目标
 

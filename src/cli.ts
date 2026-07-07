@@ -3,7 +3,16 @@ import { cancel, confirm, intro, isCancel, multiselect, note, outro, select, spi
 import { Command, Option } from "commander";
 import pc from "picocolors";
 import { AGENT_TARGETS, formatAgentChoices, getAgentTarget, type AgentKey } from "./agents.js";
-import { createInstallPlan, installSkills, normalizeOptions, type InstallOptions, type InstallResult } from "./installer.js";
+import {
+  createInstallPlan,
+  inspectSkillLinks,
+  installSkills,
+  removeSkillLinks,
+  type InstallOptions,
+  type InstallResult,
+  type LinkStatusResult,
+  type RemoveResult,
+} from "./installer.js";
 
 type CliOptions = {
   agent?: string[];
@@ -21,11 +30,16 @@ type CliOptions = {
 const program = new Command()
   .name("skillman")
   .description("Install local skill directories into agent skill folders with symlinks.")
+  .showHelpAfterError();
+
+program
+  .command("install")
+  .description("Install skill directories into agent skills directories")
   .argument("[source]", "skill directory, or a parent directory when --recursive is used")
-  .addOption(new Option("-a, --agent <agent>", `built-in target: ${formatAgentChoices()}`).argParser(collect).default([]))
+  .addOption(agentOption())
   .option("--all", "install into all built-in agent targets")
   .option("-g, --global", "install into each agent's global skills directory")
-  .addOption(new Option("-t, --target <dir>", "custom skill directory, for example ~/.config/my-agent/skills").argParser(collect).default([]))
+  .addOption(targetOption())
   .option("-r, --root <dir>", "root for built-in project-style targets; default is your home directory")
   .option("-n, --name <name>", "install the source directory under a custom skill name")
   .option("-f, --force", "replace stale symlinks or existing entries")
@@ -33,22 +47,120 @@ const program = new Command()
   .option("--recursive", "install each child directory that contains SKILL.md")
   .option("-y, --yes", "skip confirmation prompts")
   .action(async (source: string | undefined, options: CliOptions) => {
-    try {
+    await handleCommand(async () => {
       const installOptions = await resolveOptions(source, options);
       const results = await runInstall(installOptions, options.yes ?? false);
-      printResults(results, installOptions.dryRun ?? false);
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(pc.red(error.message));
-      } else {
-        console.error(pc.red("Unknown error"));
-      }
-
-      process.exitCode = 1;
-    }
+      printInstallResults(results, installOptions.dryRun ?? false);
+    });
   });
 
-program.parseAsync(process.argv);
+program
+  .command("status")
+  .description("Show whether expected skill symlinks are current, missing, stale, or conflicting")
+  .argument("<source>", "skill directory, or a parent directory when --recursive is used")
+  .addOption(agentOption())
+  .option("--all", "check all built-in agent targets")
+  .option("-g, --global", "check each agent's global skills directory")
+  .addOption(targetOption())
+  .option("-r, --root <dir>", "root for built-in project-style targets; default is your home directory")
+  .option("-n, --name <name>", "expected installed skill name")
+  .option("--recursive", "check each child directory that contains SKILL.md")
+  .option("--json", "output machine-readable JSON")
+  .action(async (source: string, options: CliOptions & { json?: boolean }) => {
+    await handleCommand(async () => {
+      const statusOptions = normalizeCliOptions(source, options);
+      const results = await inspectSkillLinks(statusOptions);
+      printStatusResults(results, options.json ?? false);
+
+      if (results.some((result) => result.status !== "current")) {
+        process.exitCode = 1;
+      }
+    });
+  });
+
+program
+  .command("remove")
+  .alias("rm")
+  .description("Remove expected skill symlinks from agent skills directories")
+  .argument("<source>", "skill directory, or a parent directory when --recursive is used")
+  .addOption(agentOption())
+  .option("--all", "remove from all built-in agent targets")
+  .option("-g, --global", "remove from each agent's global skills directory")
+  .addOption(targetOption())
+  .option("-r, --root <dir>", "root for built-in project-style targets; default is your home directory")
+  .option("-n, --name <name>", "installed skill name to remove")
+  .option("-f, --force", "remove stale symlinks that point somewhere else")
+  .option("--dry-run", "print what would be removed without writing")
+  .option("--recursive", "remove each child directory that contains SKILL.md")
+  .option("-y, --yes", "skip confirmation prompts")
+  .action(async (source: string, options: CliOptions) => {
+    await handleCommand(async () => {
+      const removeOptions = normalizeCliOptions(source, options);
+      const plan = await createInstallPlan(removeOptions);
+
+      note(
+        plan.map((item) => `${pc.cyan(item.target.label)} ${item.linkPath} ${pc.dim("x")} ${item.skill.path}`).join("\n"),
+        removeOptions.dryRun ? "Dry run remove plan" : "Remove plan",
+      );
+
+      if (!options.yes && !removeOptions.dryRun) {
+        const confirmed = await confirm({
+          message: "Remove these symlinks?",
+          initialValue: true,
+        });
+
+        if (isCancel(confirmed) || !confirmed) {
+          cancel("Cancelled");
+          process.exit(0);
+        }
+      }
+
+      const s = spinner();
+      s.start(removeOptions.dryRun ? "Checking links" : "Removing links");
+      const results = await removeSkillLinks(removeOptions);
+      s.stop(removeOptions.dryRun ? "Plan checked" : "Remove complete");
+      printRemoveResults(results, removeOptions.dryRun ?? false);
+    });
+  });
+
+program.parseAsync(rewriteLegacyArgv(process.argv));
+
+function rewriteLegacyArgv(argv: string[]): string[] {
+  const commandNames = new Set(["install", "status", "remove", "rm", "help"]);
+  const firstArg = argv[2];
+
+  if (!firstArg) {
+    return [...argv.slice(0, 2), "install"];
+  }
+
+  if (commandNames.has(firstArg) || firstArg === "--help" || firstArg === "-h" || firstArg === "--version" || firstArg === "-v") {
+    return argv;
+  }
+
+  return [...argv.slice(0, 2), "install", ...argv.slice(2)];
+}
+
+function agentOption(): Option {
+  return new Option("-a, --agent <agent>", `built-in target: ${formatAgentChoices()}`).argParser(collect).default([]);
+}
+
+function targetOption(): Option {
+  return new Option("-t, --target <dir>", "custom skill directory, for example ~/.config/my-agent/skills").argParser(collect).default([]);
+}
+
+async function handleCommand(action: () => Promise<void>): Promise<void> {
+  try {
+    await action();
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(pc.red(error.message));
+    } else {
+      console.error(pc.red("Unknown error"));
+    }
+
+    process.exitCode = 1;
+  }
+}
 
 function collect(value: string, previous: string[] = []): string[] {
   return [...previous, value];
@@ -228,7 +340,7 @@ async function runInstall(options: InstallOptions, assumeYes: boolean): Promise<
   return results;
 }
 
-function printResults(results: InstallResult[], dryRun: boolean): void {
+function printInstallResults(results: InstallResult[], dryRun: boolean): void {
   for (const result of results) {
     const icon = formatAction(result.action);
     console.log(`${icon} ${result.message}`);
@@ -245,6 +357,56 @@ function printResults(results: InstallResult[], dryRun: boolean): void {
   );
 }
 
+function printStatusResults(results: LinkStatusResult[], json: boolean): void {
+  if (json) {
+    console.log(
+      JSON.stringify(
+        results.map((result) => ({
+          skill: result.skill.name,
+          target: result.target.key,
+          scope: result.scope,
+          status: result.status,
+          linkPath: result.linkPath,
+          expectedTarget: result.skill.path,
+          existingTarget: result.existingTarget,
+        })),
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+
+  for (const result of results) {
+    const icon = formatStatus(result.status);
+    console.log(`${icon} ${result.message}`);
+  }
+
+  const current = results.filter((result) => result.status === "current").length;
+  const missing = results.filter((result) => result.status === "missing").length;
+  const stale = results.filter((result) => result.status === "stale").length;
+  const conflicts = results.filter((result) => result.status === "conflict").length;
+
+  outro(`${current} current, ${missing} missing, ${stale} stale, ${conflicts} conflict${conflicts === 1 ? "" : "s"}.`);
+}
+
+function printRemoveResults(results: RemoveResult[], dryRun: boolean): void {
+  for (const result of results) {
+    const icon = formatRemoveAction(result.action);
+    console.log(`${icon} ${result.message}`);
+  }
+
+  const removed = results.filter((result) => result.action === "removed").length;
+  const missing = results.filter((result) => result.action === "missing").length;
+  const skipped = results.filter((result) => result.action === "skipped").length;
+
+  outro(
+    dryRun
+      ? `${removed} removable, ${missing} missing, ${skipped} skipped.`
+      : `${removed} removed, ${missing} missing, ${skipped} skipped.`,
+  );
+}
+
 function formatAction(action: InstallResult["action"]): string {
   switch (action) {
     case "linked":
@@ -257,5 +419,29 @@ function formatAction(action: InstallResult["action"]): string {
       return pc.red("!");
     case "created-dir":
       return pc.blue("*");
+  }
+}
+
+function formatStatus(status: LinkStatusResult["status"]): string {
+  switch (status) {
+    case "current":
+      return pc.green("=");
+    case "missing":
+      return pc.yellow("?");
+    case "stale":
+      return pc.yellow("~");
+    case "conflict":
+      return pc.red("!");
+  }
+}
+
+function formatRemoveAction(action: RemoveResult["action"]): string {
+  switch (action) {
+    case "removed":
+      return pc.green("-");
+    case "missing":
+      return pc.dim("?");
+    case "skipped":
+      return pc.red("!");
   }
 }

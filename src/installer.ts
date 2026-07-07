@@ -4,6 +4,8 @@ import path from "node:path";
 import { AGENT_TARGETS, type AgentKey, type AgentTarget, getAgentTarget } from "./agents.js";
 
 export type InstallAction = "linked" | "updated" | "kept" | "skipped" | "created-dir";
+export type RemoveAction = "removed" | "missing" | "skipped";
+export type LinkStatus = "current" | "missing" | "stale" | "conflict";
 
 export type SkillSource = {
   name: string;
@@ -31,6 +33,18 @@ export type InstallPlanItem = {
 export type InstallResult = InstallPlanItem & {
   action: InstallAction;
   message: string;
+};
+
+export type LinkStatusResult = InstallPlanItem & {
+  status: LinkStatus;
+  message: string;
+  existingTarget?: string;
+};
+
+export type RemoveResult = InstallPlanItem & {
+  action: RemoveAction;
+  message: string;
+  existingTarget?: string;
 };
 
 export type InstallOptions = {
@@ -291,6 +305,123 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
   }
 
   return results;
+}
+
+export async function inspectSkillLinks(options: InstallOptions): Promise<LinkStatusResult[]> {
+  const plan = await createInstallPlan(options);
+  const results: LinkStatusResult[] = [];
+
+  for (const item of plan) {
+    results.push(await inspectPlanItem(item));
+  }
+
+  return results;
+}
+
+export async function removeSkillLinks(options: InstallOptions): Promise<RemoveResult[]> {
+  const normalized = normalizeOptions(options);
+  const plan = await createInstallPlan(normalized);
+  const results: RemoveResult[] = [];
+
+  for (const item of plan) {
+    results.push(await removePlanItem(item, normalized));
+  }
+
+  return results;
+}
+
+async function removePlanItem(item: InstallPlanItem, options: Pick<ResolveInstallOptions, "dryRun" | "force">): Promise<RemoveResult> {
+  const existing = await fs.lstat(item.linkPath).catch((error: unknown) => {
+    if (isNotFoundError(error)) {
+      return undefined;
+    }
+
+    throw error;
+  });
+
+  if (!existing) {
+    return {
+      ...item,
+      action: "missing",
+      message: `Missing ${item.linkPath}`,
+    };
+  }
+
+  if (!existing.isSymbolicLink()) {
+    return {
+      ...item,
+      action: "skipped",
+      message: `Skipped ${item.linkPath}; a non-symlink entry exists.`,
+    };
+  }
+
+  const currentTarget = await fs.readlink(item.linkPath);
+  const resolvedCurrentTarget = path.resolve(path.dirname(item.linkPath), currentTarget);
+
+  if (resolvedCurrentTarget !== item.skill.path && !options.force) {
+    return {
+      ...item,
+      action: "skipped",
+      existingTarget: resolvedCurrentTarget,
+      message: `Skipped ${item.linkPath}; it points to ${resolvedCurrentTarget}. Use --force to remove it.`,
+    };
+  }
+
+  if (!options.dryRun) {
+    await fs.unlink(item.linkPath);
+  }
+
+  return {
+    ...item,
+    action: "removed",
+    existingTarget: resolvedCurrentTarget,
+    message: `${options.dryRun ? "Would remove" : "Removed"} ${item.linkPath} -> ${resolvedCurrentTarget}`,
+  };
+}
+
+async function inspectPlanItem(item: InstallPlanItem): Promise<LinkStatusResult> {
+  const existing = await fs.lstat(item.linkPath).catch((error: unknown) => {
+    if (isNotFoundError(error)) {
+      return undefined;
+    }
+
+    throw error;
+  });
+
+  if (!existing) {
+    return {
+      ...item,
+      status: "missing",
+      message: `Missing ${item.linkPath} -> ${item.skill.path}`,
+    };
+  }
+
+  if (!existing.isSymbolicLink()) {
+    return {
+      ...item,
+      status: "conflict",
+      message: `Conflict ${item.linkPath}; a non-symlink entry exists.`,
+    };
+  }
+
+  const currentTarget = await fs.readlink(item.linkPath);
+  const resolvedCurrentTarget = path.resolve(path.dirname(item.linkPath), currentTarget);
+
+  if (resolvedCurrentTarget === item.skill.path) {
+    return {
+      ...item,
+      status: "current",
+      existingTarget: resolvedCurrentTarget,
+      message: `Current ${item.linkPath} -> ${item.skill.path}`,
+    };
+  }
+
+  return {
+    ...item,
+    status: "stale",
+    existingTarget: resolvedCurrentTarget,
+    message: `Stale ${item.linkPath}; points to ${resolvedCurrentTarget}, expected ${item.skill.path}`,
+  };
 }
 
 async function installPlanItem(item: InstallPlanItem, options: Pick<ResolveInstallOptions, "dryRun" | "force">): Promise<InstallResult> {

@@ -16,6 +16,8 @@ It is meant for the Vercel Skills-style workflow where one source skill can be m
 - Supports custom target skills directories.
 - Provides a small interactive TUI when target flags are omitted.
 - Supports recursive installation from a parent directory containing multiple skills.
+- Provides a `status` command to report links as current, missing, stale, or conflict.
+- Provides a `remove` command to remove installed skill symlinks.
 
 ## Install
 
@@ -36,31 +38,31 @@ pnpm link --global
 Install one skill into `~/.trae/skills`:
 
 ```bash
-skillman ./my-skill --agent trae
+skillman install ./my-skill --agent trae
 ```
 
 Install into all known user-directory skills targets:
 
 ```bash
-skillman ./my-skill --all
+skillman install ./my-skill --all
 ```
 
 Install into each agent's official global skills directory:
 
 ```bash
-skillman ./my-skill --agent codex --agent claude-code --global
+skillman install ./my-skill --agent codex --agent claude-code --global
 ```
 
 Use the `npx skills`-style wildcard agent:
 
 ```bash
-skillman ./my-skill --agent '*'
+skillman install ./my-skill --agent '*'
 ```
 
 Install into the current project:
 
 ```bash
-skillman ./my-skill --agent agents --agent trae --root .
+skillman install ./my-skill --agent agents --agent trae --root .
 ```
 
 That creates links like:
@@ -73,32 +75,54 @@ That creates links like:
 Use a custom exact skills directory:
 
 ```bash
-skillman ./my-skill --target ~/.config/my-agent/skills
+skillman install ./my-skill --target ~/.config/my-agent/skills
 ```
 
 Install every child directory that contains `SKILL.md`:
 
 ```bash
-skillman ./skills --recursive --all
+skillman install ./skills --recursive --all
 ```
 
 Preview changes:
 
 ```bash
-skillman ./my-skill --all --dry-run
+skillman install ./my-skill --all --dry-run
 ```
 
 Refresh an existing link that points somewhere else:
 
 ```bash
-skillman ./my-skill --agent trae --force
+skillman install ./my-skill --agent trae --force
 ```
 
 Run without a target to use the TUI:
 
 ```bash
-skillman ./my-skill
+skillman install ./my-skill
 ```
+
+Check current link status:
+
+```bash
+skillman status ./my-skill --agent trae
+```
+
+Output JSON for scripts:
+
+```bash
+skillman status ./my-skill --agent '*' --json
+```
+
+Remove an installed skill symlink:
+
+```bash
+skillman remove ./my-skill --agent trae
+```
+
+If an existing link points somewhere else, `--force` is required to remove it; non-symlink files or directories are never removed.
+
+The legacy entrypoint is still supported: `skillman ./my-skill --agent trae` is equivalent to `skillman install ./my-skill --agent trae`.
 
 ## Built-In Targets
 
