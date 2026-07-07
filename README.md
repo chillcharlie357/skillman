@@ -1,32 +1,32 @@
 # skillman
 
-English: [README-EN.md](./README-EN.md)
+中文: [README-CN.md](./README-CN.md)
 
-`skillman` 用软链接把本地 skill 目录安装到常见 agent 的 skills 目录中。
+`skillman` installs local skill directories into common agent skills directories with symlinks.
 
-它适合类似 Vercel Skills 的工作流：同一份源 skill 可以同时提供给多个本地 agent 使用，不需要复制文件。
+It is meant for the Vercel Skills-style workflow where one source skill can be made available to several local agents without copying files.
 
-## 功能
+## Features
 
-- 使用目录软链接安装。
-- 使用 `--force` 更新失效或指向错误位置的链接。
-- agent 类型和路径参考 `npx skills`，支持 `claude-code`、`codex`、`cursor`、`opencode`、`trae`、`windsurf` 等。
-- 内置目标默认以用户主目录为根，例如 `~/.agents/skills`、`~/.trae/skills`。
-- 使用 `--root .` 安装到当前项目；使用 `-g, --global` 安装到各 agent 的官方全局 skills 目录。
-- 支持自定义目标 skills 目录。
-- 未指定目标参数时提供一个轻量交互式 TUI。
-- TUI 会把上次在 `Choose from known agents` 中选择的 agent 记到 `~/.skillman/config.json`，并追加到 `Common agent directories`。
-- 支持从包含多个 skill 的父目录递归安装。
-- 提供 `status` 子命令查询链接是否 current、missing、stale 或 conflict。
-- 提供 `remove` 子命令移除已安装的 skill 软链接。
+- Installs with directory symlinks.
+- Updates stale or incorrectly pointed links with `--force`.
+- Uses agent names and paths aligned with `npx skills`, including `claude-code`, `codex`, `cursor`, `opencode`, `trae`, and `windsurf`.
+- Uses the user home directory as the default root for built-in targets, such as `~/.agents/skills` and `~/.trae/skills`.
+- Use `--root .` for the current project; use `-g, --global` for each agent's official global skills directory.
+- Supports custom target skills directories.
+- Provides a small interactive TUI when target flags are omitted.
+- The TUI stores the last `Choose from known agents` selection in `~/.skillman/config.json` and appends it to `Common agent directories`.
+- Supports recursive installation from a parent directory containing multiple skills.
+- Provides a `status` command to report links as current, missing, stale, or conflict.
+- Provides a `remove` command to remove installed skill symlinks.
 
-## 安装
+## Install
 
 ```bash
 npm install -g @heleyang/skillman
 ```
 
-从当前仓库本地安装：
+Install locally from this repo:
 
 ```bash
 pnpm install
@@ -34,101 +34,101 @@ pnpm run build
 pnpm link --global
 ```
 
-## 使用
+## Usage
 
-把单个 skill 安装到 `~/.trae/skills`：
+Install one skill into `~/.trae/skills`:
 
 ```bash
 skillman install ./my-skill --agent trae
 ```
 
-安装到所有已知 agent 的用户目录 skills：
+Install into all known user-directory skills targets:
 
 ```bash
 skillman install ./my-skill --all
 ```
 
-安装到各 agent 的官方全局 skills 目录：
+Install into each agent's official global skills directory:
 
 ```bash
 skillman install ./my-skill --agent codex --agent claude-code --global
 ```
 
-使用 `npx skills` 风格的通配 agent：
+Use the `npx skills`-style wildcard agent:
 
 ```bash
 skillman install ./my-skill --agent '*'
 ```
 
-安装到当前项目目录：
+Install into the current project:
 
 ```bash
 skillman install ./my-skill --agent agents --agent trae --root .
 ```
 
-这会创建类似下面的链接：
+That creates links like:
 
 ```text
 ./.agents/skills/my-skill -> /absolute/path/to/my-skill
 ./.trae/skills/my-skill -> /absolute/path/to/my-skill
 ```
 
-使用自定义的精确 skills 目录：
+Use a custom exact skills directory:
 
 ```bash
 skillman install ./my-skill --target ~/.config/my-agent/skills
 ```
 
-安装每个包含 `SKILL.md` 的子目录：
+Install every child directory that contains `SKILL.md`:
 
 ```bash
 skillman install ./skills --recursive --all
 ```
 
-预览将要执行的变更：
+Preview changes:
 
 ```bash
 skillman install ./my-skill --all --dry-run
 ```
 
-刷新已经存在但指向其他位置的链接：
+Refresh an existing link that points somewhere else:
 
 ```bash
 skillman install ./my-skill --agent trae --force
 ```
 
-使用 `install` 子命令且不传目标参数时进入 TUI。选择 `Common agent directories` 会直接使用默认目标 `agents`、`codex`、`trae`、`trae-cn`，并追加上次在 `Choose from known agents` 中选择过的目标。只有选择 `Choose from known agents` 时才会进入完整 agent 多选列表；这次选择会保存到 `~/.skillman/config.json`。
+Run the `install` command without target flags to use the TUI. Choosing `Common agent directories` directly uses the default targets `agents`, `codex`, `trae`, and `trae-cn`, plus the targets you last selected from `Choose from known agents`. Only `Choose from known agents` opens the full agent multiselect; that selection is saved to `~/.skillman/config.json`.
 
 ```bash
 skillman install ./my-skill
 ```
 
-查询当前链接状态：
+Check current link status:
 
 ```bash
 skillman status ./my-skill --agent trae
 ```
 
-输出 JSON 供脚本使用：
+Output JSON for scripts:
 
 ```bash
 skillman status ./my-skill --agent '*' --json
 ```
 
-移除已安装的 skill 软链接：
+Remove an installed skill symlink:
 
 ```bash
 skillman remove ./my-skill --agent trae
 ```
 
-如果现有链接指向其他位置，使用 `--force` 才会移除；非软链接文件或目录不会被删除。
+If an existing link points somewhere else, `--force` is required to remove it; non-symlink files or directories are never removed.
 
-兼容旧入口：`skillman ./my-skill --agent trae` 仍等价于 `skillman install ./my-skill --agent trae`。
-根命令 `skillman` 等价于 `skillman --help`。
+The legacy entrypoint is still supported: `skillman ./my-skill --agent trae` is equivalent to `skillman install ./my-skill --agent trae`.
+The root command `skillman` is equivalent to `skillman --help`.
 
-## 内置目标
+## Built-In Targets
 
-| Agent | `--agent` | 默认目录 | 官方全局目录 |
+| Agent | `--agent` | Default Directory | Official Global Directory |
 | --- | --- | --- | --- |
 | Universal | `agents`, `universal` | `~/.agents/skills` | `~/.agents/skills` (`agents`), `~/.config/agents/skills` (`universal`) |
 | Claude Code | `claude-code` (`claude`) | `~/.claude/skills` | `~/.claude/skills` |
@@ -141,10 +141,10 @@ skillman remove ./my-skill --agent trae
 | Trae CN | `trae-cn` | `~/.trae-cn/skills` | `~/.trae-cn/skills` |
 | Windsurf | `windsurf` | `~/.windsurf/skills` | `~/.codeium/windsurf/skills` |
 
-还支持 `npx skills` supported agents 表中的更多 key，例如 `aider-desk`、`amp`、`antigravity`、`cline`、`crush`、`goose`、`kiro-cli`、`qwen-code`、`tabnine-cli`、`zed`、`zencoder` 等。使用 `skillman --help` 可查看当前完整 key 列表。
+It also supports more keys from the `npx skills` supported agents table, such as `aider-desk`, `amp`, `antigravity`, `cline`, `crush`, `goose`, `kiro-cli`, `qwen-code`, `tabnine-cli`, `zed`, and `zencoder`. Run `skillman --help` to see the current full key list.
 
-默认使用用户主目录作为内置目标根目录，因此 `--agent trae` 会写到 `~/.trae/skills`，`--agent agents` 会写到 `~/.agents/skills`。使用 `--root .` 可以安装到当前项目；使用 `-g, --global` 则安装到每个 agent 的官方全局 skills 目录。
+Built-in targets use the user home directory as their default root, so `--agent trae` writes to `~/.trae/skills` and `--agent agents` writes to `~/.agents/skills`. Use `--root .` to install into the current project; use `-g, --global` to install into each agent's official global skills directory.
 
-## 文档维护
+## Documentation Maintenance
 
-更新文档时，请保持 [README.md](./README.md) 和 [README-EN.md](./README-EN.md) 的章节结构、命令示例和目标表一致。
+When updating docs, keep [README.md](./README.md) and [README-CN.md](./README-CN.md) aligned in section structure, command examples, and target tables.
