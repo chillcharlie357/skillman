@@ -96,7 +96,7 @@ Refresh an existing link that points somewhere else:
 skillman install ./my-skill --agent trae --force
 ```
 
-Run without a target to use the TUI:
+Run the `install` command without target flags to use the TUI:
 
 ```bash
 skillman install ./my-skill
@@ -123,6 +123,7 @@ skillman remove ./my-skill --agent trae
 If an existing link points somewhere else, `--force` is required to remove it; non-symlink files or directories are never removed.
 
 The legacy entrypoint is still supported: `skillman ./my-skill --agent trae` is equivalent to `skillman install ./my-skill --agent trae`.
+The root command `skillman` is equivalent to `skillman --help`.
 
 ## Built-In Targets
 

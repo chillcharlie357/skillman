@@ -96,7 +96,7 @@ skillman install ./my-skill --all --dry-run
 skillman install ./my-skill --agent trae --force
 ```
 
-不传目标参数时使用 TUI：
+使用 `install` 子命令且不传目标参数时进入 TUI：
 
 ```bash
 skillman install ./my-skill
@@ -123,6 +123,7 @@ skillman remove ./my-skill --agent trae
 如果现有链接指向其他位置，使用 `--force` 才会移除；非软链接文件或目录不会被删除。
 
 兼容旧入口：`skillman ./my-skill --agent trae` 仍等价于 `skillman install ./my-skill --agent trae`。
+根命令 `skillman` 等价于 `skillman --help`。
 
 ## 内置目标
 

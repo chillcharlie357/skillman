@@ -30,7 +30,10 @@ type CliOptions = {
 const program = new Command()
   .name("skillman")
   .description("Install local skill directories into agent skill folders with symlinks.")
-  .showHelpAfterError();
+  .showHelpAfterError()
+  .action(() => {
+    program.help();
+  });
 
 program
   .command("install")
@@ -130,7 +133,7 @@ function rewriteLegacyArgv(argv: string[]): string[] {
   const firstArg = argv[2];
 
   if (!firstArg) {
-    return [...argv.slice(0, 2), "install"];
+    return argv;
   }
 
   if (commandNames.has(firstArg) || firstArg === "--help" || firstArg === "-h" || firstArg === "--version" || firstArg === "-v") {
