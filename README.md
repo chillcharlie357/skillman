@@ -14,8 +14,8 @@ It is meant for the Vercel Skills-style workflow where one source skill can be m
 - Uses the user home directory as the default root for built-in targets, such as `~/.agents/skills` and `~/.trae/skills`.
 - Use `--root .` for the current project; use `-g, --global` for each agent's official global skills directory.
 - Supports custom target skills directories.
-- Provides a small interactive TUI when target flags are omitted.
-- The TUI stores the last `Choose from known agents` selection in `~/.skillman/config.json` and appends it to `Common agent directories`.
+- Provides a grouped interactive TUI when target flags are omitted.
+- The TUI always includes `.agents/skills`, default-selects common additional agents, and stores your last additional agent choices in `~/.skillman/config.json`.
 - Supports recursive installation from a parent directory containing multiple skills.
 - Provides a `status` command to report links as current, missing, stale, or conflict.
 - Provides a `remove` command to remove installed skill symlinks.
@@ -97,7 +97,7 @@ Refresh an existing link that points somewhere else:
 skillman install ./my-skill --agent trae --force
 ```
 
-Run the `install` command without target flags to use the TUI. Choosing `Common agent directories` directly uses the default targets `agents`, `codex`, `trae`, and `trae-cn`, plus the targets you last selected from `Choose from known agents`. Only `Choose from known agents` opens the full agent multiselect; that selection is saved to `~/.skillman/config.json`.
+Run the `install` command without target flags to use the TUI. The agent picker always includes the universal `.agents/skills` target, then shows `Additional agents` in the same multiselect. Common additional targets such as `trae` and `trae-cn`, plus your last additional selections, are checked by default; the additional selection is saved to `~/.skillman/config.json`.
 
 ```bash
 skillman install ./my-skill

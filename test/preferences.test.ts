@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  getDefaultSelectedAgentKeys,
   getCommonAgentKeys,
   getConfigDirectory,
   getPreferencesPath,
@@ -44,9 +45,17 @@ describe("preferences", () => {
     await expect(fs.readFile(path.join(tmpDir, "config.json"), "utf8")).resolves.toContain("lastChosenAgentKeys");
   });
 
-  it("merges common defaults with the last chosen known agents", async () => {
+  it("merges default selected agents with the last chosen additional agents", async () => {
     await writeLastChosenAgentKeys(["cursor", "roo", "trae"], tmpDir);
 
+    await expect(getDefaultSelectedAgentKeys({ configDirectory: tmpDir })).resolves.toEqual([
+      "agents",
+      "codex",
+      "trae",
+      "trae-cn",
+      "cursor",
+      "roo",
+    ]);
     await expect(getCommonAgentKeys({ configDirectory: tmpDir })).resolves.toEqual(["agents", "codex", "trae", "trae-cn", "cursor", "roo"]);
   });
 

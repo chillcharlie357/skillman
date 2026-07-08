@@ -2,10 +2,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { cancel, confirm, intro, isCancel, multiselect, note, outro, select, spinner, text } from "@clack/prompts";
+import { cancel, confirm, groupMultiselect, intro, isCancel, note, outro, spinner, text } from "@clack/prompts";
 import { Command, Option } from "commander";
 import pc from "picocolors";
-import { AGENT_TARGETS, COMMON_AGENT_KEYS, formatAgentChoices, getAgentTarget, type AgentKey } from "./agents.js";
+import { AGENT_TARGETS, formatAgentChoices, getAgentTarget, type AgentKey, type AgentTarget } from "./agents.js";
 import {
   createInstallPlan,
   inspectSkillLinks,
@@ -16,7 +16,7 @@ import {
   type LinkStatusResult,
   type RemoveResult,
 } from "./installer.js";
-import { getCommonAgentKeys, writeLastChosenAgentKeys } from "./preferences.js";
+import { getDefaultSelectedAgentKeys, mergeAgentKeys, writeLastChosenAgentKeys } from "./preferences.js";
 
 type CliOptions = {
   agent?: string[];
@@ -203,7 +203,6 @@ async function resolveOptions(source: string | undefined, options: CliOptions): 
 
 async function runTui(source: string | undefined, options: CliOptions): Promise<InstallOptions> {
   intro(pc.bold("skillman"));
-  const commonAgentKeys = await getCommonAgentKeys({ global: options.global });
 
   const selectedSource =
     source ??
@@ -224,21 +223,6 @@ async function runTui(source: string | undefined, options: CliOptions): Promise<
     process.exit(0);
   }
 
-  const mode = await select({
-    message: "Where should skillman install it?",
-    options: [
-      { value: "common", label: "Common agent directories", hint: formatCommonAgentHint(commonAgentKeys) },
-      { value: "choose", label: "Choose from known agents", hint: "Pick one or more supported agents" },
-      { value: "custom", label: "Custom skills directory", hint: "Provide an exact target folder" },
-      { value: "all", label: "All known agent directories", hint: "Fast path" },
-    ],
-  });
-
-  if (isCancel(mode)) {
-    cancel("Cancelled");
-    process.exit(0);
-  }
-
   const next: InstallOptions = {
     source: selectedSource,
     name: options.name,
@@ -249,56 +233,8 @@ async function runTui(source: string | undefined, options: CliOptions): Promise<
     recursive: options.recursive,
   };
 
-  if (mode === "all") {
-    next.all = true;
-  }
-
-  if (mode === "common") {
-    next.agents = commonAgentKeys;
-  }
-
-  if (mode === "choose") {
-    const selectableTargets = options.global ? AGENT_TARGETS.filter((target) => target.globalSkillDir) : AGENT_TARGETS;
-
-    const selectedAgents = await multiselect({
-      message: "Choose agent targets",
-      required: true,
-      options: selectableTargets.map((target) => ({
-        value: target.key,
-        label: target.label,
-        hint: options.global ? (target.globalSkillDir ?? "project-only") : target.relativeSkillDir,
-      })),
-    });
-
-    if (isCancel(selectedAgents)) {
-      cancel("Cancelled");
-      process.exit(0);
-    }
-
-    next.agents = selectedAgents;
-    await writeLastChosenAgentKeys(selectedAgents);
-  }
-
-  if (mode === "custom") {
-    const target = await text({
-      message: "Custom skills directory",
-      placeholder: "~/.agents/skills",
-      validate(value) {
-        if (!value.trim()) {
-          return "Enter a target directory.";
-        }
-
-        return undefined;
-      },
-    });
-
-    if (isCancel(target)) {
-      cancel("Cancelled");
-      process.exit(0);
-    }
-
-    next.targets = [target];
-  }
+  const selectedAgents = await selectTuiAgents(options.global ?? false);
+  next.agents = selectedAgents;
 
   if (next.force === undefined) {
     const shouldForce = await confirm({
@@ -317,10 +253,114 @@ async function runTui(source: string | undefined, options: CliOptions): Promise<
   return next;
 }
 
-function formatCommonAgentHint(agentKeys: readonly AgentKey[]): string {
-  const extraCount = Math.max(0, agentKeys.length - COMMON_AGENT_KEYS.length);
-  const suffix = extraCount > 0 ? ` + ${extraCount} saved` : "";
-  return `${COMMON_AGENT_KEYS.join(", ")}${suffix}`;
+async function selectTuiAgents(global: boolean): Promise<AgentKey[]> {
+  const alwaysIncludedAgentKeys = getAlwaysIncludedAgentKeys(global);
+  const alwaysIncludedTargetDirs = new Set(
+    alwaysIncludedAgentKeys
+      .map((key) => getAgentTarget(key))
+      .filter((target): target is NonNullable<ReturnType<typeof getAgentTarget>> => Boolean(target))
+      .map((target) => getTargetSkillDir(target, global)),
+  );
+  const coveredTargets = getSelectableAgentTargets(global).filter((target) => alwaysIncludedTargetDirs.has(getTargetSkillDir(target, global)));
+  const defaultSelectedAgentKeys = await getDefaultSelectedAgentKeys({ global });
+  const additionalTargets = getSelectableAgentTargets(global).filter((target) => !alwaysIncludedTargetDirs.has(getTargetSkillDir(target, global)));
+  const additionalTargetKeys = new Set(additionalTargets.map((target) => target.key));
+  const initialAdditionalAgentKeys = defaultSelectedAgentKeys.filter((key) => additionalTargetKeys.has(key));
+  const additionalOptions = sortTargetsBySelection(additionalTargets, initialAdditionalAgentKeys).map((target) => ({
+    value: target.key,
+    label: target.label,
+    hint: formatTargetHint(target, global),
+  }));
+  const alwaysIncludedOptions = alwaysIncludedAgentKeys
+    .map((key) => getAgentTarget(key))
+    .filter((target): target is NonNullable<ReturnType<typeof getAgentTarget>> => Boolean(target))
+    .map((target) => ({
+      value: target.key,
+      label: target.label,
+      hint: formatAlwaysIncludedHint(target, alwaysIncludedAgentKeys, coveredTargets, global),
+    }));
+
+  const selectedAgentKeys = await groupMultiselect({
+    message: "Which agents do you want to install to?",
+    options: {
+      "Always included": alwaysIncludedOptions,
+      "Additional agents": additionalOptions,
+    },
+    initialValues: mergeAgentKeys(alwaysIncludedAgentKeys, initialAdditionalAgentKeys),
+    cursorAt: initialAdditionalAgentKeys[0] ?? additionalOptions[0]?.value,
+    required: false,
+    selectableGroups: false,
+  });
+
+  if (isCancel(selectedAgentKeys)) {
+    cancel("Cancelled");
+    process.exit(0);
+  }
+
+  const selectedAdditionalAgentKeys = selectedAgentKeys.filter((key) => additionalTargetKeys.has(key));
+  await writeLastChosenAgentKeys(selectedAdditionalAgentKeys);
+  return mergeAgentKeys(alwaysIncludedAgentKeys, selectedAdditionalAgentKeys);
+}
+
+function getAlwaysIncludedAgentKeys(global: boolean): AgentKey[] {
+  const keys = ["agents"] satisfies AgentKey[];
+  if (!global) {
+    return keys;
+  }
+
+  return keys.filter((key) => Boolean(getAgentTarget(key)?.globalSkillDir));
+}
+
+function getSelectableAgentTargets(global: boolean) {
+  return global ? AGENT_TARGETS.filter((target) => target.globalSkillDir) : AGENT_TARGETS;
+}
+
+function formatTargetHint(target: NonNullable<ReturnType<typeof getAgentTarget>>, global: boolean): string {
+  return getTargetSkillDir(target, global);
+}
+
+function getTargetSkillDir(target: NonNullable<ReturnType<typeof getAgentTarget>>, global: boolean): string {
+  return global ? (target.globalSkillDir ?? target.relativeSkillDir) : target.relativeSkillDir;
+}
+
+function formatAlwaysIncludedHint(
+  target: NonNullable<ReturnType<typeof getAgentTarget>>,
+  alwaysIncludedAgentKeys: readonly AgentKey[],
+  coveredTargets: readonly AgentTarget[],
+  global: boolean,
+): string {
+  const coveredCount = countCoveredAgents(alwaysIncludedAgentKeys, coveredTargets);
+  const coveredSuffix = coveredCount > 0 ? `; covers ${coveredCount} agents` : "";
+
+  return `${formatTargetHint(target, global)}; always included${coveredSuffix}`;
+}
+
+function countCoveredAgents(alwaysIncludedAgentKeys: readonly AgentKey[], coveredTargets: readonly AgentTarget[]): number {
+  const alwaysIncludedAgentKeySet = new Set(alwaysIncludedAgentKeys);
+  return coveredTargets.filter((target) => !alwaysIncludedAgentKeySet.has(target.key)).length;
+}
+
+function sortTargetsBySelection(targets: readonly AgentTarget[], selectedAgentKeys: readonly AgentKey[]): AgentTarget[] {
+  const selectedOrder = new Map(selectedAgentKeys.map((key, index) => [key, index]));
+
+  return [...targets].sort((left, right) => {
+    const leftOrder = selectedOrder.get(left.key);
+    const rightOrder = selectedOrder.get(right.key);
+
+    if (leftOrder !== undefined && rightOrder !== undefined) {
+      return leftOrder - rightOrder;
+    }
+
+    if (leftOrder !== undefined) {
+      return -1;
+    }
+
+    if (rightOrder !== undefined) {
+      return 1;
+    }
+
+    return left.label.localeCompare(right.label);
+  });
 }
 
 function normalizeCliOptions(source: string, options: CliOptions): InstallOptions {

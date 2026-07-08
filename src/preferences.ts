@@ -58,7 +58,7 @@ export async function writeLastChosenAgentKeys(agentKeys: readonly string[], con
   await fs.writeFile(getPreferencesPath(configDirectory), `${JSON.stringify({ lastChosenAgentKeys: normalizedAgentKeys }, null, 2)}\n`);
 }
 
-export async function getCommonAgentKeys(options: { configDirectory?: string; global?: boolean } = {}): Promise<AgentKey[]> {
+export async function getDefaultSelectedAgentKeys(options: { configDirectory?: string; global?: boolean } = {}): Promise<AgentKey[]> {
   const lastChosenAgentKeys = await readLastChosenAgentKeys(options.configDirectory);
   const keys = mergeAgentKeys(COMMON_AGENT_KEYS, lastChosenAgentKeys);
 
@@ -67,6 +67,10 @@ export async function getCommonAgentKeys(options: { configDirectory?: string; gl
   }
 
   return keys.filter((key) => Boolean(getAgentTarget(key)?.globalSkillDir));
+}
+
+export async function getCommonAgentKeys(options: { configDirectory?: string; global?: boolean } = {}): Promise<AgentKey[]> {
+  return getDefaultSelectedAgentKeys(options);
 }
 
 export function mergeAgentKeys(...agentKeyGroups: readonly (readonly string[])[]): AgentKey[] {
